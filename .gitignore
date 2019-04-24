@@ -1,3 +1,8 @@
 java/*
 perl/*
-
+*.sdf
+*.opensdf
+*.suo
+*.user
+Win32/UpgradeLog.htm
+_build/*

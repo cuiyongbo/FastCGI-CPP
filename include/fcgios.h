@@ -24,7 +24,11 @@
 #include <winsock2.h>
 #endif
 
+#ifdef _WIN32
+#include "fcgi_config_x86.h"
+#else
 #include "fcgi_config.h"
+#endif
 
 #ifdef HAVE_SYS_TIME_H
 #include <sys/time.h>

@@ -25,7 +25,7 @@ static const char rcsid[] = "$Id: fcgiapp.c,v 1.34 2001/12/12 22:54:10 robs Exp 
 #include <string.h>
 #include <sys/types.h>
 
-#include "fcgi_config.h"
+// #include "fcgi_config.h"
 
 #ifdef HAVE_SYS_SOCKET_H
 #include <sys/socket.h> /* for getpeername */

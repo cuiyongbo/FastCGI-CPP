@@ -103,7 +103,7 @@ int fcgi_streambuf::underflow()
     {
         if (in_avail() == 0)
         {
-            int glen = FCGX_GetStr(eback(), this->bufsize, this->fcgx);
+            int glen = FCGX_GetStr(eback(), (int)this->bufsize, this->fcgx);
             if (glen <= 0) return EOF;
 
             setg(eback(), eback(), eback() + glen);

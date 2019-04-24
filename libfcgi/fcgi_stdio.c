@@ -20,7 +20,7 @@ static const char rcsid[] = "$Id: fcgi_stdio.c,v 1.14 2001/09/01 01:09:30 robs E
 #include <stdlib.h> /* for malloc */
 #include <string.h> /* for strerror */
 
-#include "fcgi_config.h"
+// #include "fcgi_config.h"
 
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
@@ -755,14 +755,14 @@ FCGI_FILE *FCGI_tmpfile(void)
 int FCGI_fileno(FCGI_FILE *fp)
 {
     if(fp->stdio_stream)
-        return fileno(fp->stdio_stream);
+        return _fileno(fp->stdio_stream);
     else
         return -1;
 }
 
 FCGI_FILE *FCGI_fdopen(int fd, const char *mode)
 {
-    FILE * file = fdopen(fd, mode);
+    FILE * file = _fdopen(fd, mode);
     FCGI_FILE * fcgi_file = FCGI_OpenFromFILE(file);
 
     if (file && !fcgi_file)
