@@ -43,22 +43,22 @@ extern "C" {
  * by the procedures defined below.
  */
 typedef struct FCGX_Stream {
-    unsigned char *rdNext;    /* reader: first valid byte
-                               * writer: equals stop */
-    unsigned char *wrNext;    /* writer: first free byte
-                               * reader: equals stop */
-    unsigned char *stop;      /* reader: last valid byte + 1
-                               * writer: last free byte + 1 */
-    unsigned char *stopUnget; /* reader: first byte of current buffer
-                               * fragment, for ungetc
-                               * writer: undefined */
-    int isReader;
-    int isClosed;
-    int wasFCloseCalled;
-    int FCGI_errno;                /* error status */
-    void (*fillBuffProc) (struct FCGX_Stream *stream);
-    void (*emptyBuffProc) (struct FCGX_Stream *stream, int doClose);
-    void *data;
+	unsigned char *rdNext;    /* reader: first valid byte
+							   * writer: equals stop */
+	unsigned char *wrNext;    /* writer: first free byte
+							   * reader: equals stop */
+	unsigned char *stop;      /* reader: last valid byte + 1
+							   * writer: last free byte + 1 */
+	unsigned char *stopUnget; /* reader: first byte of current buffer
+							   * fragment, for ungetc
+							   * writer: undefined */
+	int isReader;
+	int isClosed;
+	int wasFCloseCalled;
+	int FCGI_errno;                /* error status */
+	void (*fillBuffProc) (struct FCGX_Stream *stream);
+	void (*emptyBuffProc) (struct FCGX_Stream *stream, int doClose);
+	void *data;
 } FCGX_Stream;
 
 /*
@@ -81,26 +81,26 @@ typedef char **FCGX_ParamArray;
  * Its exposed for API simplicity, I expect parts of it to change!
  */
 typedef struct FCGX_Request {
-    int requestId;            /* valid if isBeginProcessed */
-    int role;
-    FCGX_Stream *in;
-    FCGX_Stream *out;
-    FCGX_Stream *err;
+	int requestId;            /* valid if isBeginProcessed */
+	int role;
+	FCGX_Stream *in;
+	FCGX_Stream *out;
+	FCGX_Stream *err;
 	char **envp;
 
 	/* Don't use anything below here */
 
-    struct Params *paramsPtr;
-    int ipcFd;               /* < 0 means no connection */
-    int isBeginProcessed;     /* FCGI_BEGIN_REQUEST seen */
-    int keepConnection;       /* don't close ipcFd at end of request */
-    int appStatus;
-    int nWriters;             /* number of open writers (0..2) */
+	struct Params *paramsPtr;
+	int ipcFd;               /* < 0 means no connection */
+	int isBeginProcessed;     /* FCGI_BEGIN_REQUEST seen */
+	int keepConnection;       /* don't close ipcFd at end of request */
+	int appStatus;
+	int nWriters;             /* number of open writers (0..2) */
 	int flags;
 	int listen_sock;
 } FCGX_Request;
 
-
+ 
 /*
  *======================================================================
  * Control
@@ -259,10 +259,10 @@ void FCGX_Free(FCGX_Request * request, int close);
  *----------------------------------------------------------------------
  */
 int FCGX_Accept(
-        FCGX_Stream **in,
-        FCGX_Stream **out,
-        FCGX_Stream **err,
-        FCGX_ParamArray *envp);
+		FCGX_Stream **in,
+		FCGX_Stream **out,
+		FCGX_Stream **err,
+		FCGX_ParamArray *envp);
 
 /*
  *----------------------------------------------------------------------
@@ -318,7 +318,7 @@ int FCGX_StartFilterData(FCGX_Stream *stream);
  *----------------------------------------------------------------------
  */
 void FCGX_SetExitStatus(int status, FCGX_Stream *stream);
-
+ 
 /*
  *======================================================================
  * Parameters
@@ -339,7 +339,7 @@ void FCGX_SetExitStatus(int status, FCGX_Stream *stream);
  *----------------------------------------------------------------------
  */
 char *FCGX_GetParam(const char *name, FCGX_ParamArray envp);
-
+ 
 /*
  *======================================================================
  * Readers
@@ -432,7 +432,7 @@ char *FCGX_GetLine(char *str, int n, FCGX_Stream *stream);
  */
 
  int FCGX_HasSeenEOF(FCGX_Stream *stream);
-
+ 
 /*
  *======================================================================
  * Writers
@@ -521,7 +521,7 @@ int FCGX_VFPrintF(FCGX_Stream *stream, const char *format, va_list arg);
  *----------------------------------------------------------------------
  */
 int FCGX_FFlush(FCGX_Stream *stream);
-
+ 
 /*
  *======================================================================
  * Both Readers and Writers
@@ -582,10 +582,10 @@ void FCGX_ClearError(FCGX_Stream *stream);
  *----------------------------------------------------------------------
  */
 FCGX_Stream *FCGX_CreateWriter(
-        int socket,
-        int requestId,
-        int bufflen,
-        int streamType);
+		int socket,
+		int requestId,
+		int bufflen,
+		int streamType);
 
 /*
  *----------------------------------------------------------------------
