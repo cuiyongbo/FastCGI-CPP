@@ -11,15 +11,15 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{216806C0-719C-4AF2-A0BC-95F0C0E032C2}</ProjectGuid>
-    <RootNamespace>libfcgi</RootNamespace>
+    <ProjectGuid>{6172B389-C075-4E54-86EE-EBF8BC8E5E7B}</ProjectGuid>
+    <RootNamespace>echo</RootNamespace>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
-    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>v120</PlatformToolset>
-    <CharacterSet>NotSet</CharacterSet>
+    <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
@@ -41,7 +41,6 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <OutDir>../_build/lib/</OutDir>
     <IntDir>../_build/obj/$(ProjectName)/</IntDir>
-    <TargetExt>.lib</TargetExt>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -50,14 +49,13 @@
       <SDLCheck>true</SDLCheck>
       <AdditionalIncludeDirectories>../include</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
-      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;_WINSOCK_DEPRECATED_NO_WARNINGS</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalLibraryDirectories>../_build/lib/</AdditionalLibraryDirectories>
+      <AdditionalDependencies>libfcgi.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <SubSystem>Console</SubSystem>
     </Link>
-    <Lib>
-      <AdditionalDependencies>ws2_32.lib</AdditionalDependencies>
-    </Lib>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
@@ -74,22 +72,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="..\include\fastcgi.h" />
-    <ClInclude Include="..\include\fcgiapp.h" />
-    <ClInclude Include="..\include\fcgimisc.h" />
-    <ClInclude Include="..\include\fcgio.h" />
-    <ClInclude Include="..\include\fcgios.h" />
-    <ClInclude Include="..\include\fcgi_config_x86.h" />
-    <ClInclude Include="..\include\fcgi_stdio.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClCompile Include="..\libfcgi\fcgiapp.c" />
-    <ClCompile Include="..\libfcgi\fcgio.cpp" />
-    <ClCompile Include="..\libfcgi\fcgi_stdio.c" />
-    <ClCompile Include="..\libfcgi\os_unix.c">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
-    </ClCompile>
-    <ClCompile Include="..\libfcgi\os_win32.c" />
+    <ClCompile Include="..\examples\echo-cpp.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

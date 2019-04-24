@@ -38,7 +38,12 @@
 extern char ** environ;
 #endif
 #include "fcgio.h"
+
+#ifdef _WIN32
+#include "fcgi_config_x86.h"
+#else
 #include "fcgi_config.h"  // HAVE_IOSTREAM_WITHASSIGN_STREAMBUF
+#endif
 
 using namespace std;
 
@@ -77,7 +82,7 @@ static long gstdin(FCGX_Request * request, char ** content)
         *content = new char[clen];
 
         cin.read(*content, clen);
-        clen = cin.gcount();
+        clen = (unsigned long)cin.gcount();
     }
     else
     {
@@ -99,7 +104,7 @@ static long gstdin(FCGX_Request * request, char ** content)
 int main (void)
 {
     int count = 0;
-    long pid = getpid();
+    long pid = _getpid();
 
     streambuf * cin_streambuf  = cin.rdbuf();
     streambuf * cout_streambuf = cout.rdbuf();

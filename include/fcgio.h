@@ -34,14 +34,6 @@
 
 #include "fcgiapp.h"
 
-#ifndef DLLAPI
-#ifdef _WIN32
-#define DLLAPI __declspec(dllimport)
-#else
-#define DLLAPI
-#endif
-#endif
-
 #if ! HAVE_STREAMBUF_CHAR_TYPE
 typedef char char_type;
 #endif
@@ -49,7 +41,7 @@ typedef char char_type;
 /*
  *  fcgi_streambuf
  */
-class DLLAPI fcgi_streambuf : public std::streambuf
+class fcgi_streambuf : public std::streambuf
 {
 public:
 
@@ -109,7 +101,7 @@ private:
 /*
  *  fcgi_istream - deprecated
  */
-class DLLAPI fcgi_istream : public std::istream
+class fcgi_istream : public std::istream
 {
 public:
 
@@ -130,7 +122,7 @@ private:
 /*
  *  fcgi_ostream - deprecated
  */
-class DLLAPI fcgi_ostream : public std::ostream
+class fcgi_ostream : public std::ostream
 {
 public:
     
