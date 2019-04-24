@@ -1482,7 +1482,7 @@ int OS_DoIo(struct timeval *tmo)
     else
 	ms = 1000;
     ftime(&tb);
-    ms_last = tb.time*1000 + tb.millitm;
+    ms_last = (int)(tb.time*1000 + tb.millitm);
     while (ms >= 0) {
 	if(tmo && (ms = tmo->tv_sec*1000 + tmo->tv_usec/1000)> 100)
 	    ms = 100;
@@ -1500,8 +1500,8 @@ int OS_DoIo(struct timeval *tmo)
 	free(pOv);
 
 	ftime(&tb);
-	ms -= (tb.time*1000 + tb.millitm - ms_last);
-	ms_last = tb.time*1000 + tb.millitm;
+	ms -= (int)(tb.time*1000 + tb.millitm - ms_last);
+	ms_last = (int)(tb.time*1000 + tb.millitm);
     }
     return 0;
 }

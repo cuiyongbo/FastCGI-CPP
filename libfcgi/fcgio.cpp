@@ -19,7 +19,8 @@
 // FITNESS FOR A PARTICULAR PURPOSE.
 
 #ifdef _WIN32
-#define DLLAPI  __declspec(dllexport)
+// #define DLLAPI  __declspec(dllexport)
+#define DLLAPI
 #endif
 
 #include <limits.h>
