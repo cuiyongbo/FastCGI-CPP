@@ -74,16 +74,18 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="..\fcgi_config.h" />
     <ClInclude Include="..\include\fastcgi.h" />
     <ClInclude Include="..\include\fcgiapp.h" />
     <ClInclude Include="..\include\fcgimisc.h" />
     <ClInclude Include="..\include\fcgio.h" />
     <ClInclude Include="..\include\fcgios.h" />
-    <ClInclude Include="..\include\fcgi_config_x86.h" />
+    <ClInclude Include="..\include\fcgi_config.h" />
     <ClInclude Include="..\include\fcgi_stdio.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\cgi-fcgi\cgi-fcgi.c">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
     <ClCompile Include="..\libfcgi\fcgiapp.c" />
     <ClCompile Include="..\libfcgi\fcgio.cpp" />
     <ClCompile Include="..\libfcgi\fcgi_stdio.c" />
