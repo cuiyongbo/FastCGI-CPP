@@ -32,6 +32,9 @@
     <ClInclude Include="..\include\fcgios.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\fcgi_config.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\libfcgi\fcgi_stdio.c">

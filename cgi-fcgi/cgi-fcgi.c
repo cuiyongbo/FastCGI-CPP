@@ -22,7 +22,11 @@ static const char rcsid[] = "$Id: cgi-fcgi.c,v 1.15 2001/09/01 01:14:28 robs Exp
 #include <stdlib.h>
 #include <string.h>
 
+#ifdef _WIN32
+#include "fcgi_config_x86.h"
+#else
 #include "fcgi_config.h"
+#endif
 
 #ifdef HAVE_NETDB_H
 #include <netdb.h>
@@ -32,7 +36,7 @@ static const char rcsid[] = "$Id: cgi-fcgi.c,v 1.15 2001/09/01 01:14:28 robs Exp
 #include <stdlib.h>
 #include <io.h>
 #else
-extern char **environ;
+// extern char **environ;
 #endif
 
 #ifdef HAVE_SYS_PARAM_H

@@ -4,5 +4,7 @@ perl/*
 *.opensdf
 *.suo
 *.user
-Win32/UpgradeLog.htm
 _build/*
+*.o
+*.a
+*.htm

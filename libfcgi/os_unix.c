@@ -173,8 +173,7 @@ int OS_LibInit(int stdioFds[3])
 		errno = ENOMEM;
 		return -1;
 	}
-	memset((char *) asyncIoTable, 0,
-		   asyncIoTableSize * sizeof(AioInfo));
+	memset((char *) asyncIoTable, 0, asyncIoTableSize * sizeof(AioInfo));
 
 	FD_ZERO(&readFdSet);
 	FD_ZERO(&writeFdSet);

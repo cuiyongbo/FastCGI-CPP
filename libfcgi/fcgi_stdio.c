@@ -754,15 +754,25 @@ FCGI_FILE *FCGI_tmpfile(void)
  */
 int FCGI_fileno(FCGI_FILE *fp)
 {
-    if(fp->stdio_stream)
-        return _fileno(fp->stdio_stream);
+	if (fp->stdio_stream)
+	{
+#ifdef _WIN32
+		return _fileno(fp->stdio_stream);
+#else
+		return fileno(fp->stdio_stream);
+#endif
+	}
     else
         return -1;
 }
 
 FCGI_FILE *FCGI_fdopen(int fd, const char *mode)
 {
-    FILE * file = _fdopen(fd, mode);
+#ifdef _WIN32
+	FILE * file = _fdopen(fd, mode);
+#else
+	FILE * file = fdopen(fd, mode);
+#endif
     FCGI_FILE * fcgi_file = FCGI_OpenFromFILE(file);
 
     if (file && !fcgi_file)
