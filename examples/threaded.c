@@ -2,6 +2,13 @@
  * threaded.c -- A simple multi-threaded FastCGI application.
  */
 
+
+#if defined(__GNUC__)
+#  pragma GCC diagnostic ignored "-fpermissive"
+#  pragma GCC diagnostic ignored "-Wint-to-pointer-cast"
+#endif
+
+
 #ifndef lint
 static const char rcsid[] = "$Id: threaded.c,v 1.9 2001/11/20 03:23:21 robs Exp $";
 #endif /* not lint */
@@ -17,14 +24,13 @@ static const char rcsid[] = "$Id: threaded.c,v 1.9 2001/11/20 03:23:21 robs Exp 
 
 #include "fcgiapp.h"
 
-
 #define THREAD_COUNT 20
 
 static int counts[THREAD_COUNT];
 
 static void *doit(void *a)
 {
-    int rc, i, thread_id = (int)a;
+    int rc, i, thread_id = (int)(size_t)a;
     pid_t pid = getpid();
     FCGX_Request request;
     char *server_name;
@@ -71,16 +77,13 @@ static void *doit(void *a)
 
 int main(void)
 {
-    int i;
-    pthread_t id[THREAD_COUNT];
-
     FCGX_Init();
 
-    for (i = 1; i < THREAD_COUNT; i++)
+    pthread_t id[THREAD_COUNT];
+    for (int i = 1; i < THREAD_COUNT; i++)
         pthread_create(&id[i], NULL, doit, (void*)i);
 
     doit(0);
-
     return 0;
 }
 
