@@ -31,4 +31,4 @@ libfcgi.a : $(OBJS)
 	$(AR) $(ARFLAGS) $@ $^	 
 
 clean:
-	rm -rf *.o *.dSYM $(LIB_NAME)
+	rm -rf *.o *.dSYM *.gch $(LIB_NAME)
