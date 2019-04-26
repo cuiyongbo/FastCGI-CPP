@@ -64,7 +64,7 @@ static const char rcsid[] = "$Id: os_unix.c,v 1.37 2002/03/05 19:14:49 robs Exp 
 #endif
 
 /*
- * This structure holds an entry for each oustanding async I/O operation.
+ * This structure holds an entry for each outstanding async I/O operation.
  */
 typedef struct {
 	OS_AsyncProc procPtr;	    /* callout completion procedure */
@@ -169,7 +169,8 @@ int OS_LibInit(int stdioFds[3])
 		return 0;
 
 	asyncIoTable = (AioInfo *)malloc(asyncIoTableSize * sizeof(AioInfo));
-	if(asyncIoTable == NULL) {
+	if(asyncIoTable == NULL) 
+	{
 		errno = ENOMEM;
 		return -1;
 	}
@@ -445,8 +446,7 @@ int OS_FcgiConnect(char *bindPath)
  *	Pass through to the unix read function.
  *
  * Results:
- *	Returns number of byes read, 0, or -1 failure: errno
- *      contains actual error.
+ *	Returns number of byes read, 0, or -1 failure: errno contains actual error.
  *
  * Side effects:
  *	None.
@@ -467,8 +467,7 @@ int OS_Read(int fd, char * buf, size_t len)
  *	Pass through to unix write function.
  *
  * Results:
- *	Returns number of byes read, 0, or -1 failure: errno
- *      contains actual error.
+ *	Returns number of byes written, 0, or -1 failure: errno contains actual error.
  *
  * Side effects:
  *	none.
@@ -707,8 +706,7 @@ int OS_AsyncWrite(int fd, int offset, void *buf, int len,
  *
  * OS_Close --
  *
- *	Closes the descriptor.  This is a pass through to the
- *      Unix close.
+ *	Closes the descriptor. This is a pass through to the Unix close.
  *
  * Results:
  *	0 for success, -1 on failure
@@ -746,21 +744,20 @@ int OS_Close(int fd)
 
 	/*
 	 * shutdown() the send side and then read() from client until EOF
-	 * or a timeout expires.  This is done to minimize the potential
+	 * or a timeout expires. This is done to minimize the potential
 	 * that a TCP RST will be sent by our TCP stack in response to 
-	 * receipt of additional data from the client.  The RST would
+	 * receipt of additional data from the client. The RST would
 	 * cause the client to discard potentially useful response data.
 	 */
 
-	if (shutdown(fd, 1) == 0)
+	if (shutdown(fd, SHUT_WR) == 0)
 	{
-		struct timeval tv;
 		fd_set rfds;
-		int rv;
-		char trash[1024];
-
 		FD_ZERO(&rfds);
 
+		int rv;
+		char trash[1024];
+		struct timeval tv;
 		do 
 		{
 			FD_SET(fd, &rfds);
@@ -795,7 +792,7 @@ int OS_CloseRead(int fd)
 		FD_CLR(fd, &readFdSet);
 	}
 
-	return shutdown(fd, 0);
+	return shutdown(fd, SHUT_RD);
 }
 
 /*

@@ -295,8 +295,7 @@ int FCGX_PutChar(int c, FCGX_Stream *stream)
  * FCGX_PutStr --
  *
  *      Writes n consecutive bytes from the character array str
- *      into the output stream.  Performs no interpretation
- *      of the output bytes.
+ *      into the output stream. Performs no interpretation of the output bytes.
  *
  * Results:
  *      Number of bytes written (n) for normal return,
@@ -306,33 +305,32 @@ int FCGX_PutChar(int c, FCGX_Stream *stream)
  */
 int FCGX_PutStr(const char *str, int n, FCGX_Stream *stream)
 {
-	int m, bytesMoved;
-
-	/*
-	 * Fast path: room for n bytes in the buffer
-	 */
-	if(n <= (stream->stop - stream->wrNext)) {
+	// Fast path: room for n bytes in the buffer
+	if(n <= (stream->stop - stream->wrNext)) 
+	{
 		memcpy(stream->wrNext, str, n);
 		stream->wrNext += n;
 		return n;
 	}
-	/*
-	 * General case: stream is closed or buffer empty procedure
-	 * needs to be called
-	 */
-	bytesMoved = 0;
-	for (;;) {
-		if(stream->wrNext != stream->stop) {
-			m = min(n - bytesMoved, stream->stop - stream->wrNext);
+
+	// General case: stream is closed or buffer empty procedure needs to be called
+	int bytesMoved = 0;
+	for (;;) 
+	{
+		if(stream->wrNext != stream->stop) 
+		{
+			int m = min(n - bytesMoved, stream->stop - stream->wrNext);
 			memcpy(stream->wrNext, str, m);
 			bytesMoved += m;
 			stream->wrNext += m;
 			if(bytesMoved == n)
 				return bytesMoved;
 			str += m;
-	}
+		}
+
 		if(stream->isClosed || stream->isReader)
 			return -1;
+		
 		stream->emptyBuffProc(stream, FALSE);
 	}
 }
@@ -897,9 +895,10 @@ int FCGX_FFlush(FCGX_Stream *stream)
  *      Performs FCGX_FFlush and closes the stream.
  *
  *      This is not a very useful operation, since FCGX_Accept
- *      does it implicitly.  Closing the out stream before the
+ *      does it implicitly. Closing the out stream before the
  *      err stream results in an extra write if there's nothing
  *      in the err stream, and therefore reduces performance.
+ *      [why need an extra write since there is nothing in the err stream?]
  *
  * Results:
  *      EOF (-1) if an error occurred.
@@ -1266,7 +1265,8 @@ static FCGI_UnknownTypeBody MakeUnknownTypeBody(
  *
  *----------------------------------------------------------------------
  */
-static int AlignInt8(unsigned n) {
+static int AlignInt8(unsigned n) 
+{
 	return (n + 7) & (UINT_MAX - 7);
 }
 
@@ -1280,7 +1280,8 @@ static int AlignInt8(unsigned n) {
  *
  *----------------------------------------------------------------------
  */
-static unsigned char *AlignPtr8(unsigned char *p) {
+static unsigned char *AlignPtr8(unsigned char *p) 
+{
 	unsigned long u = (unsigned long) p;
 	u = ((u + 7) & (ULONG_MAX - 7)) - u;
 	return p + u;
@@ -1322,48 +1323,39 @@ typedef struct FCGX_Stream_Data {
  */
 static void WriteCloseRecords(struct FCGX_Stream *stream)
 {
-	FCGX_Stream_Data *data = (FCGX_Stream_Data *)stream->data;
-	/*
-	 * Enter rawWrite mode so final records won't be encapsulated as
-	 * stream data.
-	 */
+	FCGX_Stream_Data* data = (FCGX_Stream_Data*)stream->data;
+
+	// Enter rawWrite mode so final records won't be encapsulated as stream data.
 	data->rawWrite = TRUE;
-	/*
-	 * Generate EOF for stream content if needed.
-	 */
+	
+	// Generate EOF for stream content if needed.
 	if(!(data->type == FCGI_STDERR
 			&& stream->wrNext == data->buff
-			&& !data->isAnythingWritten)) {
-		FCGI_Header header;
-		header = MakeHeader(data->type, data->reqDataPtr->requestId, 0, 0);
+			&& !data->isAnythingWritten)) 
+	{
+		FCGI_Header header = MakeHeader(data->type, data->reqDataPtr->requestId, 0, 0);
 		FCGX_PutStr((char *) &header, sizeof(header), stream);
 	};
-	/*
-	 * Generate FCGI_END_REQUEST record if needed.
-	 */
-	if(data->reqDataPtr->nWriters == 1) {
+
+	// Generate FCGI_END_REQUEST record if needed.
+	if(data->reqDataPtr->nWriters == 1) 
+	{
 		FCGI_EndRequestRecord endRequestRecord;
-		endRequestRecord.header = MakeHeader(FCGI_END_REQUEST,
-				data->reqDataPtr->requestId,
-				sizeof(endRequestRecord.body), 0);
-		endRequestRecord.body = MakeEndRequestBody(
-				data->reqDataPtr->appStatus, FCGI_REQUEST_COMPLETE);
-		FCGX_PutStr((char *) &endRequestRecord,
-				sizeof(endRequestRecord), stream);
+		endRequestRecord.header = MakeHeader(FCGI_END_REQUEST, data->reqDataPtr->requestId, sizeof(endRequestRecord.body), 0);
+		endRequestRecord.body = MakeEndRequestBody(data->reqDataPtr->appStatus, FCGI_REQUEST_COMPLETE);
+		FCGX_PutStr((char*)&endRequestRecord, sizeof(endRequestRecord), stream);
 	}
 	data->reqDataPtr->nWriters--;
 }
 
-
-
 static int write_it_all(int fd, char *buf, int len)
 {
-	int wrote;
-
-	while (len) {
-		wrote = OS_Write(fd, buf, len);
+	while (len) 
+	{
+		int wrote = OS_Write(fd, buf, len);
 		if (wrote < 0)
 			return wrote;
+
 		len -= wrote;
 		buf += wrote;
 	}
@@ -1383,7 +1375,6 @@ static int write_it_all(int fd, char *buf, int len)
 static void EmptyBuffProc(struct FCGX_Stream *stream, int doClose)
 {
 	FCGX_Stream_Data *data = (FCGX_Stream_Data *)stream->data;
-	int cLen, eLen;
 	/*
 	 * If the buffer contains stream data, fill in the header.
 	 * Pad the record to a multiple of 8 bytes in length.  Padding
@@ -1391,36 +1382,42 @@ static void EmptyBuffProc(struct FCGX_Stream *stream, int doClose)
 	 * of 8 bytes in length.  If the buffer contains no stream
 	 * data, reclaim the space reserved for the header.
 	 */
-	if(!data->rawWrite) {
-		cLen = stream->wrNext - data->buff - sizeof(FCGI_Header);
-		if(cLen > 0) {
-			eLen = AlignInt8(cLen);
-			/*
-			 * Giving the padding a well-defined value keeps Purify happy.
-			 */
+	if(!data->rawWrite) 
+	{
+		int cLen = stream->wrNext - data->buff - sizeof(FCGI_Header);
+		if(cLen > 0) 
+		{
+			int eLen = AlignInt8(cLen);
+			// Giving the padding a well-defined value keeps Purify happy.
 			memset(stream->wrNext, 0, eLen - cLen);
 			stream->wrNext += eLen - cLen;
 			*((FCGI_Header *) data->buff)
 					= MakeHeader(data->type,
 							data->reqDataPtr->requestId, cLen, eLen - cLen);
-		} else {
+		}
+		else
+		{
 			stream->wrNext = data->buff;
+		}
 	}
-	}
-	if(doClose) {
+	
+	if(doClose)
+	{
 		WriteCloseRecords(stream);
-	};
-	if (stream->wrNext != data->buff) {
+	}
+
+	if (stream->wrNext != data->buff)
+	{
 		data->isAnythingWritten = TRUE;
-		if (write_it_all(data->reqDataPtr->ipcFd, (char *)data->buff, stream->wrNext - data->buff) < 0) {
+		if (write_it_all(data->reqDataPtr->ipcFd, (char *)data->buff, stream->wrNext - data->buff) < 0)
+		{
 			SetError(stream, OS_Errno);
 			return;
 		}
 		stream->wrNext = data->buff;
 	}
-	/*
-	 * The buffer is empty.
-	 */
+
+	// The buffer is empty
 	if(!data->rawWrite) {
 		stream->wrNext += sizeof(FCGI_Header);
 	}
@@ -1748,8 +1745,7 @@ static void FillBuffProc(FCGX_Stream *stream)
  *
  *----------------------------------------------------------------------
  */
-static FCGX_Stream *NewStream(
-		FCGX_Request *reqDataPtr, int bufflen, int isReader, int streamType)
+static FCGX_Stream *NewStream(FCGX_Request *reqDataPtr, int bufflen, int isReader, int streamType)
 {
 	/*
 	 * XXX: It would be a lot cleaner to have a NewStream that only
@@ -1759,8 +1755,8 @@ static FCGX_Stream *NewStream(
 	 * but also data->buff and data->buffStop.  This has implications
 	 * for procs that want to swap buffers, too.
 	 */
-	FCGX_Stream *stream = (FCGX_Stream *)Malloc(sizeof(FCGX_Stream));
-	FCGX_Stream_Data *data = (FCGX_Stream_Data *)Malloc(sizeof(FCGX_Stream_Data));
+	FCGX_Stream* stream = (FCGX_Stream*)Malloc(sizeof(FCGX_Stream));
+	FCGX_Stream_Data* data = (FCGX_Stream_Data*)Malloc(sizeof(FCGX_Stream_Data));
 	data->reqDataPtr = reqDataPtr;
 	bufflen = AlignInt8(min(max(bufflen, 32), FCGI_MAX_LENGTH + 1));
 	data->bufflen = bufflen;
@@ -2073,8 +2069,6 @@ int FCGX_InitRequest(FCGX_Request *request, int sock, int flags)
  */
 int FCGX_Init(void)
 {
-	char *p;
-
 	if (libInitialized) {
 		return 0;
 	}
@@ -2085,7 +2079,7 @@ int FCGX_Init(void)
 		return OS_Errno ? OS_Errno : -9997;
 	}
 
-	p = getenv("FCGI_WEB_SERVER_ADDRS");
+	char* p = getenv("FCGI_WEB_SERVER_ADDRS");
 	webServerAddressList = p ? StringCopy(p) : NULL;
 
 	libInitialized = 1;
@@ -2128,7 +2122,7 @@ int FCGX_Accept(
 {
 	int rc;
 
-	if (! libInitialized) {
+	if (!libInitialized) {
 		rc = FCGX_Init();
 		if (rc) {
 			return rc;
@@ -2196,8 +2190,8 @@ int FCGX_Accept_r(FCGX_Request *reqDataPtr)
 			}
 		}
 		/*
-		 * A connection is open.  Read from the connection in order to
-		 * get the request's role and environment.  If protocol or other
+		 * A connection is open. Read from the connection in order to
+		 * get the request's role and environment. If protocol or other
 		 * errors occur, close the connection and try again.
 		 */
 		reqDataPtr->isBeginProcessed = FALSE;
