@@ -42,7 +42,8 @@ extern "C" {
  * The state of a stream is private and should only be accessed
  * by the procedures defined below.
  */
-typedef struct FCGX_Stream {
+typedef struct FCGX_Stream 
+{
 	unsigned char *rdNext;    /* reader: first valid byte
 							   * writer: equals stop */
 	unsigned char *wrNext;    /* writer: first free byte
@@ -65,7 +66,7 @@ typedef struct FCGX_Stream {
  * An environment (as defined by environ(7)): A NULL-terminated array
  * of strings, each string having the form name=value.
  */
-typedef char **FCGX_ParamArray;
+typedef char** FCGX_ParamArray;
 
 /*
  * FCGX_Request Flags

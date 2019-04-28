@@ -721,25 +721,23 @@ int OS_Close(int fd)
 	if (fd == -1)
 		return 0;
 
-	if (asyncIoInUse) {
+	if (asyncIoInUse)
+	{
 		int index = AIO_RD_IX(fd);
 
 		FD_CLR(fd, &readFdSet);
 		FD_CLR(fd, &readFdSetPost);
-		if (asyncIoTable[index].inUse != 0) {
+		if (asyncIoTable[index].inUse != 0)
 			asyncIoTable[index].inUse = 0;
-		}
 
 		FD_CLR(fd, &writeFdSet);
 		FD_CLR(fd, &writeFdSetPost);
 		index = AIO_WR_IX(fd);
-		if (asyncIoTable[index].inUse != 0) {
+		if (asyncIoTable[index].inUse != 0)
 			asyncIoTable[index].inUse = 0;
-		}
 
-		if (maxFd == fd) {
+		if (maxFd == fd)
 			maxFd--;
-		}
 	}
 
 	/*

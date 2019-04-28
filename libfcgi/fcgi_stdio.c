@@ -73,7 +73,7 @@ FCGI_FILE _fcgi_sF[3];
  *      If the application was invoked as a FastCGI server,
  *      the first call to FCGI_Accept indicates that the application
  *      has completed its initialization and is ready to accept
- *      a request.  Subsequent calls to FCGI_Accept indicate that
+ *      a request. Subsequent calls to FCGI_Accept indicate that
  *      the application has completed its processing of the
  *      current request and is ready to accept a new request.
  *
@@ -92,9 +92,9 @@ FCGI_FILE _fcgi_sF[3];
  *      On every call, FCGI_Accept accepts the new request and
  *      reads the FCGI_PARAMS stream into an environment array,
  *      i.e. a NULL-terminated array of strings of the form
- *      ``name=value''.  It assigns a pointer to this array
+ *      ``name=value''. It assigns a pointer to this array
  *      to the global variable environ, used by the standard
- *      library function getenv.  It creates new FCGI_FILE *s
+ *      library function getenv. It creates new FCGI_FILE *s
  *      representing input from the HTTP server, output to the HTTP
  *      server, and error output to the HTTP server, and assigns these
  *      new files to stdin, stdout, and stderr respectively.
@@ -102,7 +102,7 @@ FCGI_FILE _fcgi_sF[3];
  *      DO NOT mutate or retain pointers to environ or any values
  *      contained in it (e.g. to the result of calling getenv(3)),
  *      since these are freed by the next call to FCGI_Finish or
- *      FCGI_Accept.  In particular do not use setenv(3) or putenv(3)
+ *      FCGI_Accept. In particular do not use setenv(3) or putenv(3)
  *      in conjunction with FCGI_Accept.
  *
  *----------------------------------------------------------------------
@@ -112,35 +112,37 @@ static int isCGI = FALSE;
 
 int FCGI_Accept(void)
 {
-	if(!acceptCalled) {
-		/*
-		 * First call to FCGI_Accept.  Is application running
-		 * as FastCGI or as CGI?
-		 */
-		isCGI = FCGX_IsCGI();
+	if(!acceptCalled) 
+	{
 		acceptCalled = TRUE;
+
+		// First call to FCGI_Accept. Is application running as FastCGI or as CGI?
+		isCGI = FCGX_IsCGI();
 		atexit(&FCGI_Finish);
-	} else if(isCGI) {
-		/*
-		 * Not first call to FCGI_Accept and running as CGI means
-		 * application is done.
-		 */
-		return(EOF);
 	}
-	if(isCGI) {
+	else if(isCGI) 
+	{
+		// Not first call to FCGI_Accept and running as CGI means application is done.
+		return EOF;
+	}
+
+	if(isCGI)
+	{
 		FCGI_stdin->stdio_stream = stdin;
 		FCGI_stdin->fcgx_stream = NULL;
 		FCGI_stdout->stdio_stream = stdout;
 		FCGI_stdout->fcgx_stream = NULL;
 		FCGI_stderr->stdio_stream = stderr;
 		FCGI_stderr->fcgx_stream = NULL;
-	} else {
-		FCGX_Stream *in, *out, *error;
+	}
+	else
+	{
 		FCGX_ParamArray envp;
+		FCGX_Stream *in, *out, *error;
 		int acceptResult = FCGX_Accept(&in, &out, &error, &envp);
-		if(acceptResult < 0) {
+		if(acceptResult < 0)
 			return acceptResult;
-		}
+		
 		FCGI_stdin->stdio_stream = NULL;
 		FCGI_stdin->fcgx_stream = in;
 		FCGI_stdout->stdio_stream = NULL;
@@ -161,7 +163,7 @@ int FCGI_Accept(void)
  *
  * Side effects:
  *
- *      Flushes any buffered output to the HTTP server.  Then frees
+ *      Flushes any buffered output to the HTTP server. Then frees
  *      all storage allocated by the previous call, including all
  *      storage reachable from the value of environ set by the previous
  *      call to FCGI_Accept.
@@ -172,16 +174,16 @@ int FCGI_Accept(void)
  *      DO NOT mutate or retain pointers to environ or any values
  *      contained in it (e.g. to the result of calling getenv(3)),
  *      since these are freed by the next call to FCGI_Finish or
- *      FCGI_Accept.  In particular do not use setenv(3) or putenv(3)
+ *      FCGI_Accept. In particular do not use setenv(3) or putenv(3)
  *      in conjunction with FCGI_Accept.
  *
  *----------------------------------------------------------------------
  */
 void FCGI_Finish(void)
 {
-	if(!acceptCalled || isCGI) {
+	if(!acceptCalled || isCGI)
 		return;
-	}
+
 	FCGX_Finish();
 	FCGI_stdin->fcgx_stream = NULL;
 	FCGI_stdout->fcgx_stream = NULL;
@@ -209,9 +211,12 @@ void FCGI_Finish(void)
  */
 int FCGI_StartFilterData(void)
 {
-	if(FCGI_stdin->stdio_stream) {
+	if(FCGI_stdin->stdio_stream) 
+	{
 		return -1;
-	} else {
+	}
+	else
+	{
 		return FCGX_StartFilterData(FCGI_stdin->fcgx_stream);
 	}
 }
@@ -232,9 +237,8 @@ int FCGI_StartFilterData(void)
  */
 void FCGI_SetExitStatus(int status)
 {
-	if(FCGI_stdin->fcgx_stream) {
+	if(FCGI_stdin->fcgx_stream) 
 		FCGX_SetExitStatus(status, FCGI_stdin->fcgx_stream);
-	}
 }
 
 /*

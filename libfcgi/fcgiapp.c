@@ -909,15 +909,19 @@ int FCGX_FClose(FCGX_Stream *stream)
 {
 	if (stream == NULL) return 0;
 
-	if(!stream->wasFCloseCalled) {
-		if(!stream->isReader) {
+	if(!stream->wasFCloseCalled)
+	{
+		if(!stream->isReader)
 			stream->emptyBuffProc(stream, TRUE);
-		}
+		
 		stream->wasFCloseCalled = TRUE;
 		stream->isClosed = TRUE;
-		if(stream->isReader) {
+		if(stream->isReader)
+		{
 			stream->wrNext = stream->stop = stream->rdNext;
-		} else {
+		}
+		else
+		{
 			stream->rdNext = stream->stop = stream->wrNext;
 		}
 	}
@@ -937,13 +941,10 @@ int FCGX_FClose(FCGX_Stream *stream)
  */
 static void SetError(FCGX_Stream *stream, int FCGI_errno)
 {
-	/*
-	 * Preserve only the first error.
-	 */
-	if(stream->FCGI_errno == 0) {
+	// Preserve only the first error.
+	if(stream->FCGI_errno == 0) 
 		stream->FCGI_errno = FCGI_errno;
-	}
-  
+
 	stream->isClosed = TRUE;
 }
 
@@ -957,7 +958,8 @@ static void SetError(FCGX_Stream *stream, int FCGI_errno)
  *
  *----------------------------------------------------------------------
  */
-int FCGX_GetError(FCGX_Stream *stream) {
+int FCGX_GetError(FCGX_Stream *stream) 
+{
 	return stream->FCGI_errno;
 }
 
@@ -997,12 +999,13 @@ void FCGX_ClearError(FCGX_Stream *stream) {
  * and last valid element so adding new parameters is efficient.
  */
 
-typedef struct Params {
+typedef struct Params
+{
 	FCGX_ParamArray vec;    /* vector of strings */
 	int length;		    /* number of string vec can hold */
-	char **cur;		    /* current item in vec; *cur == NULL */
+	char** cur;		    /* current item in vec; *cur == NULL */
 } Params;
-typedef Params *ParamsPtr;
+typedef Params* ParamsPtr;
 
 /*
  *----------------------------------------------------------------------
@@ -1042,13 +1045,14 @@ static ParamsPtr NewParams(int length)
 static void FreeParams(ParamsPtr *paramsPtrPtr)
 {
 	ParamsPtr paramsPtr = *paramsPtrPtr;
-	char **p;
-	if(paramsPtr == NULL) {
+	if(paramsPtr == NULL)
 		return;
-	}
-	for (p = paramsPtr->vec; p < paramsPtr->cur; p++) {
+	
+	for (char** p = paramsPtr->vec; p < paramsPtr->cur; p++) 
+	{
 		free(*p);
 	}
+
 	free(paramsPtr->vec);
 	free(paramsPtr);
 	*paramsPtrPtr = NULL;
@@ -1071,14 +1075,13 @@ static void FreeParams(ParamsPtr *paramsPtrPtr)
  */
 static void PutParam(ParamsPtr paramsPtr, char *nameValue)
 {
-	int size;
-
 	*paramsPtr->cur++ = nameValue;
-	size = paramsPtr->cur - paramsPtr->vec;
-	if(size >= paramsPtr->length) {
-	paramsPtr->length *= 2;
-	paramsPtr->vec = (FCGX_ParamArray)realloc(paramsPtr->vec, paramsPtr->length * sizeof(char *));
-	paramsPtr->cur = paramsPtr->vec + size;
+	int size = paramsPtr->cur - paramsPtr->vec;
+	if(size >= paramsPtr->length) 
+	{
+		paramsPtr->length *= 2;
+		paramsPtr->vec = (FCGX_ParamArray)realloc(paramsPtr->vec, paramsPtr->length * sizeof(char *));
+		paramsPtr->cur = paramsPtr->vec + size;
 	}
 	*paramsPtr->cur = NULL;
 }
@@ -1096,19 +1099,15 @@ static void PutParam(ParamsPtr paramsPtr, char *nameValue)
  *
  *----------------------------------------------------------------------
  */
-char *FCGX_GetParam(const char *name, FCGX_ParamArray envp)
+char* FCGX_GetParam(const char *name, FCGX_ParamArray envp)
 {
-	int len;
-	char **p;
-
 	if (name == NULL || envp == NULL) return NULL;
 
-	len = strlen(name);
-
-	for (p = envp; *p; ++p) {
-		if((strncmp(name, *p, len) == 0) && ((*p)[len] == '=')) {
+	int len = strlen(name);
+	for (char** p = envp; *p; ++p)
+	{
+		if((strncmp(name, *p, len) == 0) && ((*p)[len] == '='))
 			return *p+len+1;
-		}
 	}
 	return NULL;
 }
@@ -1137,48 +1136,61 @@ static int ReadParams(Params *paramsPtr, FCGX_Stream *stream)
 	unsigned char lenBuff[3];
 	char *nameValue;
 
-	while((nameLen = FCGX_GetChar(stream)) != EOF) {
+	while((nameLen = FCGX_GetChar(stream)) != EOF)
+	{
 		/*
 		 * Read name length (one or four bytes) and value length
 		 * (one or four bytes) from stream.
 		 */
-		if((nameLen & 0x80) != 0) {
-			if(FCGX_GetStr((char *) &lenBuff[0], 3, stream) != 3) {
+		if((nameLen & 0x80) != 0)
+		{
+			if(FCGX_GetStr((char *) &lenBuff[0], 3, stream) != 3)
+			{
 				SetError(stream, FCGX_PARAMS_ERROR);
 				return -1;
+			}
+
+			// network endian order
+			nameLen = ((nameLen & 0x7f) << 24) + (lenBuff[0] << 16) + (lenBuff[1] << 8) + lenBuff[2];
 		}
-			nameLen = ((nameLen & 0x7f) << 24) + (lenBuff[0] << 16)
-					+ (lenBuff[1] << 8) + lenBuff[2];
-		}
-		if((valueLen = FCGX_GetChar(stream)) == EOF) {
+
+		if((valueLen = FCGX_GetChar(stream)) == EOF)
+		{
 			SetError(stream, FCGX_PARAMS_ERROR);
 			return -1;
-	}
-		if((valueLen & 0x80) != 0) {
-			if(FCGX_GetStr((char *) &lenBuff[0], 3, stream) != 3) {
+		}
+
+		if((valueLen & 0x80) != 0)
+		{
+			if(FCGX_GetStr((char *) &lenBuff[0], 3, stream) != 3) 
+			{
 				SetError(stream, FCGX_PARAMS_ERROR);
 				return -1;
+			}
+			valueLen = ((valueLen & 0x7f) << 24) + (lenBuff[0] << 16) + (lenBuff[1] << 8) + lenBuff[2];
 		}
-			valueLen = ((valueLen & 0x7f) << 24) + (lenBuff[0] << 16)
-					+ (lenBuff[1] << 8) + lenBuff[2];
-		}
+
 		/*
 		 * nameLen and valueLen are now valid; read the name and value
 		 * from stream and construct a standard environment entry.
 		 */
+
 		nameValue = (char *)Malloc(nameLen + valueLen + 2);
-		if(FCGX_GetStr(nameValue, nameLen, stream) != nameLen) {
+		if(FCGX_GetStr(nameValue, nameLen, stream) != nameLen) 
+		{
 			SetError(stream, FCGX_PARAMS_ERROR);
 			free(nameValue);
 			return -1;
-	}
+		}
+
 		*(nameValue + nameLen) = '=';
-		if(FCGX_GetStr(nameValue + nameLen + 1, valueLen, stream)
-				!= valueLen) {
+		if(FCGX_GetStr(nameValue + nameLen + 1, valueLen, stream) != valueLen)
+		{
 			SetError(stream, FCGX_PARAMS_ERROR);
 			free(nameValue);
 			return -1;
-	}
+		}
+		
 		*(nameValue + nameLen + valueLen + 1) = '\0';
 		PutParam(paramsPtr, nameValue);
 	}
@@ -1368,20 +1380,20 @@ static int write_it_all(int fd, char *buf, int len)
  * EmptyBuffProc --
  *
  *      Encapsulates any buffered stream content in a FastCGI
- *      record.  Writes the data, making the buffer empty.
+ *      record. Writes the data, making the buffer empty.
  *
  *----------------------------------------------------------------------
  */
 static void EmptyBuffProc(struct FCGX_Stream *stream, int doClose)
 {
-	FCGX_Stream_Data *data = (FCGX_Stream_Data *)stream->data;
 	/*
 	 * If the buffer contains stream data, fill in the header.
-	 * Pad the record to a multiple of 8 bytes in length.  Padding
+	 * Pad the record to a multiple of 8 bytes in length. Padding
 	 * can't overflow the buffer because the buffer is a multiple
-	 * of 8 bytes in length.  If the buffer contains no stream
+	 * of 8 bytes in length. If the buffer contains no stream
 	 * data, reclaim the space reserved for the header.
 	 */
+	FCGX_Stream_Data* data = (FCGX_Stream_Data*)stream->data;
 	if(!data->rawWrite) 
 	{
 		int cLen = stream->wrNext - data->buff - sizeof(FCGI_Header);
@@ -1392,8 +1404,7 @@ static void EmptyBuffProc(struct FCGX_Stream *stream, int doClose)
 			memset(stream->wrNext, 0, eLen - cLen);
 			stream->wrNext += eLen - cLen;
 			*((FCGI_Header *) data->buff)
-					= MakeHeader(data->type,
-							data->reqDataPtr->requestId, cLen, eLen - cLen);
+					= MakeHeader(data->type, data->reqDataPtr->requestId, cLen, eLen - cLen);
 		}
 		else
 		{
@@ -1418,9 +1429,7 @@ static void EmptyBuffProc(struct FCGX_Stream *stream, int doClose)
 	}
 
 	// The buffer is empty
-	if(!data->rawWrite) {
-		stream->wrNext += sizeof(FCGI_Header);
-	}
+	if(!data->rawWrite) stream->wrNext += sizeof(FCGI_Header);
 }
 
 /*
@@ -1755,21 +1764,23 @@ static FCGX_Stream *NewStream(FCGX_Request *reqDataPtr, int bufflen, int isReade
 	 * but also data->buff and data->buffStop.  This has implications
 	 * for procs that want to swap buffers, too.
 	 */
-	FCGX_Stream* stream = (FCGX_Stream*)Malloc(sizeof(FCGX_Stream));
 	FCGX_Stream_Data* data = (FCGX_Stream_Data*)Malloc(sizeof(FCGX_Stream_Data));
 	data->reqDataPtr = reqDataPtr;
 	bufflen = AlignInt8(min(max(bufflen, 32), FCGI_MAX_LENGTH + 1));
 	data->bufflen = bufflen;
 	data->mBuff = (unsigned char *)Malloc(bufflen);
 	data->buff = AlignPtr8(data->mBuff);
-	if(data->buff != data->mBuff) {
-		data->bufflen -= 8;
-	}
-	if(isReader) {
+	if(data->buff != data->mBuff) data->bufflen -= 8;
+
+	if(isReader)
+	{
 		data->buffStop = data->buff;
-	} else {
+	}
+	else
+	{
 		data->buffStop = data->buff + data->bufflen;
 	}
+
 	data->type = streamType;
 	data->eorStop = FALSE;
 	data->skip = FALSE;
@@ -1778,19 +1789,23 @@ static FCGX_Stream *NewStream(FCGX_Request *reqDataPtr, int bufflen, int isReade
 	data->isAnythingWritten = FALSE;
 	data->rawWrite = FALSE;
 
+	FCGX_Stream* stream = (FCGX_Stream*)Malloc(sizeof(FCGX_Stream));
 	stream->data = data;
 	stream->isReader = isReader;
 	stream->isClosed = FALSE;
 	stream->wasFCloseCalled = FALSE;
 	stream->FCGI_errno = 0;
-	if(isReader) {
+	if(isReader)
+	{
 		stream->fillBuffProc = FillBuffProc;
 		stream->emptyBuffProc = NULL;
 		stream->rdNext = data->buff;
 		stream->stop = stream->rdNext;
 		stream->stopUnget = data->buff;
 		stream->wrNext = stream->stop;
-	} else {
+	}
+	else
+	{
 		stream->fillBuffProc = NULL;
 		stream->emptyBuffProc = EmptyBuffProc;
 		stream->wrNext = data->buff + sizeof(FCGI_Header);
@@ -1811,14 +1826,13 @@ static FCGX_Stream *NewStream(FCGX_Request *reqDataPtr, int bufflen, int isReade
  *
  *----------------------------------------------------------------------
  */
-void FCGX_FreeStream(FCGX_Stream **streamPtr)
+void FCGX_FreeStream(FCGX_Stream** streamPtr)
 {
-	FCGX_Stream *stream = *streamPtr;
-	FCGX_Stream_Data *data;
-	if(stream == NULL) {
+	FCGX_Stream* stream = *streamPtr;
+	if(stream == NULL)
 		return;
-	}
-	data = (FCGX_Stream_Data *)stream->data;
+	
+	FCGX_Stream_Data* data = (FCGX_Stream_Data*)stream->data;
 	data->reqDataPtr = NULL;
 	free(data->mBuff);
 	free(data);
@@ -1837,7 +1851,7 @@ void FCGX_FreeStream(FCGX_Stream **streamPtr)
  */
 static FCGX_Stream *SetReaderType(FCGX_Stream *stream, int streamType)
 {
-	FCGX_Stream_Data *data = (FCGX_Stream_Data *)stream->data;
+	FCGX_Stream_Data* data = (FCGX_Stream_Data*)stream->data;
 	ASSERT(stream->isReader);
 	data->type = streamType;
 	data->eorStop = FALSE;
@@ -1931,13 +1945,14 @@ FCGX_Stream *FCGX_CreateWriter(
  */
 int FCGX_IsCGI(void)
 {
-	if (isFastCGI != -1) {
+	if (isFastCGI != -1) 
 		return !isFastCGI;
-	}
 
-	if (!libInitialized) {
+	if (!libInitialized) 
+	{
 		int rc = FCGX_Init();
-		if (rc) {
+		if (rc) 
+		{
 			/* exit() isn't great, but hey */
 			exit((rc < 0) ? rc : -rc);
 		}
@@ -1994,20 +2009,17 @@ void FCGX_Finish(void)
  */
 void FCGX_Finish_r(FCGX_Request *reqDataPtr)
 {
-	int close;
-
-	if (reqDataPtr == NULL) {
+	if (reqDataPtr == NULL)
 		return;
-	}
 
-	close = !reqDataPtr->keepConnection;
+	int close = !reqDataPtr->keepConnection;
 
 	/* This should probably use a 'status' member instead of 'in' */
-	if (reqDataPtr->in) {
+	if (reqDataPtr->in)
+	{
 		close |= FCGX_FClose(reqDataPtr->err);
 		close |= FCGX_FClose(reqDataPtr->out);
-
-	close |= FCGX_GetError(reqDataPtr->in);
+		close |= FCGX_GetError(reqDataPtr->in);
 	}
 
 	FCGX_Free(reqDataPtr, close);
@@ -2023,7 +2035,8 @@ void FCGX_Free(FCGX_Request * request, int close)
 	FCGX_FreeStream(&request->err);
 	FreeParams(&request->paramsPtr);
 
-	if (close) {
+	if (close) 
+	{
 		OS_IpcClose(request->ipcFd);
 		request->ipcFd = -1;
 	}
@@ -2122,11 +2135,10 @@ int FCGX_Accept(
 {
 	int rc;
 
-	if (!libInitialized) {
+	if (!libInitialized) 
+	{
 		rc = FCGX_Init();
-		if (rc) {
-			return rc;
-		}
+		if (rc) return rc;
 	}
 
 	rc = FCGX_Accept_r(&the_request);
@@ -2168,20 +2180,20 @@ int FCGX_Accept(
  */
 int FCGX_Accept_r(FCGX_Request *reqDataPtr)
 {
-	if (!libInitialized) {
-		return -9998;
-	}
+	if (!libInitialized) return -9998;
 
 	/* Finish the current request, if any. */
 	FCGX_Finish_r(reqDataPtr);
 
-	for (;;) {
+	for (;;) 
+	{
 		/*
 		 * If a connection isn't open, accept a new connection (blocking).
 		 * If an OS error occurs in accepting the connection,
 		 * return -1 to the caller, who should exit.
 		 */
-		if (reqDataPtr->ipcFd < 0) {
+		if (reqDataPtr->ipcFd < 0)
+		{
 			int fail_on_intr = reqDataPtr->flags & FCGI_FAIL_ACCEPT_ON_INTR;
 
 			reqDataPtr->ipcFd = OS_Accept(reqDataPtr->listen_sock, fail_on_intr, webServerAddressList);
@@ -2189,6 +2201,7 @@ int FCGX_Accept_r(FCGX_Request *reqDataPtr)
 				return (errno > 0) ? (0 - errno) : -9999;
 			}
 		}
+
 		/*
 		 * A connection is open. Read from the connection in order to
 		 * get the request's role and environment. If protocol or other
@@ -2197,12 +2210,12 @@ int FCGX_Accept_r(FCGX_Request *reqDataPtr)
 		reqDataPtr->isBeginProcessed = FALSE;
 		reqDataPtr->in = NewReader(reqDataPtr, 8192, 0);
 		FillBuffProc(reqDataPtr->in);
-		if(!reqDataPtr->isBeginProcessed) {
-			goto TryAgain;
-		}
+		if(!reqDataPtr->isBeginProcessed) goto TryAgain;
+		
 		{
 			char *roleStr;
-			switch(reqDataPtr->role) {
+			switch(reqDataPtr->role) 
+			{
 				case FCGI_RESPONDER:
 					roleStr = "FCGI_ROLE=RESPONDER";
 					break;
@@ -2218,8 +2231,11 @@ int FCGX_Accept_r(FCGX_Request *reqDataPtr)
 			reqDataPtr->paramsPtr = NewParams(30);
 			PutParam(reqDataPtr->paramsPtr, StringCopy(roleStr));
 		}
+
 		SetReaderType(reqDataPtr->in, FCGI_PARAMS);
-		if(ReadParams(reqDataPtr->paramsPtr, reqDataPtr->in) >= 0) {
+		
+		if(ReadParams(reqDataPtr->paramsPtr, reqDataPtr->in) >= 0)
+		{
 			/*
 			 * Finished reading the environment.  No errors occurred, so
 			 * leave the connection-retry loop.
@@ -2233,7 +2249,8 @@ int FCGX_Accept_r(FCGX_Request *reqDataPtr)
 TryAgain:
 		FCGX_Free(reqDataPtr, 1);
 
-	} /* for (;;) */
+	}
+
 	/*
 	 * Build the remaining data structures representing the new
 	 * request and return successfully to the caller.
@@ -2270,7 +2287,8 @@ int FCGX_StartFilterData(FCGX_Stream *stream)
 	if(data->reqDataPtr->role != FCGI_FILTER
 			|| !stream->isReader
 			|| !stream->isClosed
-			|| data->type != FCGI_STDIN) {
+			|| data->type != FCGI_STDIN) 
+	{
 		SetError(stream, FCGX_CALL_SEQ_ERROR);
 		return -1;
 	}
