@@ -27,7 +27,7 @@ extern "C" {
 #endif
 
 /*
- * Error codes.  Assigned to avoid conflict with EOF and errno(2).
+ * Error codes. Assigned to avoid conflict with EOF and errno(2).
  */
 #define FCGX_UNSUPPORTED_VERSION -2
 #define FCGX_PROTOCOL_ERROR -3
@@ -81,17 +81,18 @@ typedef char** FCGX_ParamArray;
  *
  * Its exposed for API simplicity, I expect parts of it to change!
  */
-typedef struct FCGX_Request {
+typedef struct FCGX_Request
+{
 	int requestId;            /* valid if isBeginProcessed */
 	int role;
-	FCGX_Stream *in;
-	FCGX_Stream *out;
-	FCGX_Stream *err;
-	char **envp;
+	FCGX_Stream* in;
+	FCGX_Stream* out;
+	FCGX_Stream* err;
+	char** envp;
 
 	/* Don't use anything below here */
 
-	struct Params *paramsPtr;
+	struct Params* paramsPtr;
 	int ipcFd;               /* < 0 means no connection */
 	int isBeginProcessed;     /* FCGI_BEGIN_REQUEST seen */
 	int keepConnection;       /* don't close ipcFd at end of request */
@@ -230,7 +231,7 @@ void FCGX_Finish_r(FCGX_Request *request);
  *
  *----------------------------------------------------------------------
  */
-void FCGX_Free(FCGX_Request * request, int close);
+void FCGX_Free(FCGX_Request* request, int close);
 
 /*
  *----------------------------------------------------------------------

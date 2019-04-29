@@ -453,7 +453,7 @@ int OS_FcgiConnect(char *bindPath)
  *
  *--------------------------------------------------------------
  */
-int OS_Read(int fd, char * buf, size_t len)
+int OS_Read(int fd, char* buf, size_t len)
 {
 	if (shutdownNow) return -1;
 	return(read(fd, buf, len));
@@ -474,7 +474,7 @@ int OS_Read(int fd, char * buf, size_t len)
  *
  *--------------------------------------------------------------
  */
-int OS_Write(int fd, char * buf, size_t len)
+int OS_Write(int fd, char* buf, size_t len)
 {
 	if (shutdownNow) return -1;
 	return(write(fd, buf, len));
@@ -931,28 +931,27 @@ static char * str_dup(const char * str)
  *      Checks if a client address is in a list of allowed addresses
  *
  * Results:
- *	TRUE if address list is empty or client address is present
+ *      TRUE if address list is empty or client address is present
  *      in the list, FALSE otherwise.
  *
  *----------------------------------------------------------------------
  */
-static int ClientAddrOK(struct sockaddr_in *saPtr, const char *clientList)
+static int ClientAddrOK(struct sockaddr_in* saPtr, const char* clientList)
 {
-	int result = FALSE;
-	char *clientListCopy, *cur, *next;
-
-	if (clientList == NULL || *clientList == '\0') {
+	if (clientList == NULL || *clientList == '\0')
 		return TRUE;
-	}
 
-	clientListCopy = str_dup(clientList);
+	int result = FALSE;
+	char* clientListCopy = str_dup(clientList);
 
-	for (cur = clientListCopy; cur != NULL; cur = next) {
+	for (char* next, char* cur = clientListCopy; cur != NULL; cur = next)
+	{
 		next = strchr(cur, ',');
-		if (next != NULL) {
+		if (next != NULL)
 			*next++ = '\0';
-		}
-		if (inet_addr(cur) == saPtr->sin_addr.s_addr) {
+		
+		if (inet_addr(cur) == saPtr->sin_addr.s_addr)
+		{
 			result = TRUE;
 			break;
 		}
@@ -968,8 +967,8 @@ static int ClientAddrOK(struct sockaddr_in *saPtr, const char *clientList)
  * AcquireLock --
  *
  *      On platforms that implement concurrent calls to accept
- *      on a shared listening ipcFd, returns 0.  On other platforms,
- *	acquires an exclusive lock across all processes sharing a
+ *      on a shared listening ipcFd, returns 0. On other platforms,
+ *      acquires an exclusive lock across all processes sharing a
  *      listening ipcFd, blocking until the lock has been acquired.
  *
  * Results:
@@ -989,12 +988,11 @@ static int AcquireLock(int sock, int fail_on_intr)
 		lock.l_start = 0;
 		lock.l_whence = SEEK_SET;
 		lock.l_len = 0;
-
 		if (fcntl(sock, F_SETLKW, &lock) != -1)
 			return 0;
-	} while (errno == EINTR 
-			 && ! fail_on_intr 
-			 && ! shutdownPending);
+	} while (errno == EINTR
+			 && !fail_on_intr
+			 && !shutdownPending);
 
 	return -1;
 
@@ -1009,8 +1007,8 @@ static int AcquireLock(int sock, int fail_on_intr)
  * ReleaseLock --
  *
  *      On platforms that implement concurrent calls to accept
- *      on a shared listening ipcFd, does nothing.  On other platforms,
- *	releases an exclusive lock acquired by AcquireLock.
+ *      on a shared listening ipcFd, does nothing. On other platforms,
+ *      releases an exclusive lock acquired by AcquireLock.
  *
  * Results:
  *      0 for successful call, -1 in case of system error (fatal).
@@ -1029,7 +1027,6 @@ static int ReleaseLock(int sock)
 		lock.l_start = 0;
 		lock.l_whence = SEEK_SET;
 		lock.l_len = 0;
-
 		if (fcntl(sock, F_SETLK, &lock) != -1)
 			return 0;
 	} while (errno == EINTR);
@@ -1041,10 +1038,13 @@ static int ReleaseLock(int sock)
 #endif
 }
 
-/**********************************************************************
+/*
+ *----------------------------------------------------------------------
+ *
  * Determine if the errno resulting from a failed accept() warrants a
- * retry or exit().  Based on Apache's http_main.c accept() handling
+ * retry or exit(). Based on Apache's http_main.c accept() handling
  * and Stevens' Unix Network Programming Vol 1, 2nd Ed, para. 15.6.
+ *
  */
 static int is_reasonable_accept_errno (const int error)
 {
@@ -1087,9 +1087,11 @@ static int is_reasonable_accept_errno (const int error)
 	}
 }
 
-/**********************************************************************
+/*
+ *----------------------------------------------------------------------
+ *
  * This works around a problem on Linux 2.0.x and SCO Unixware (maybe
- * others?).  When a connect() is made to a Unix Domain socket, but its
+ * others?). When a connect() is made to a Unix Domain socket, but its
  * not accept()ed before the web server gets impatient and close()s, an
  * accept() results in a valid file descriptor, but no data to read.
  * This causes a block on the first read() - which never returns!
@@ -1102,20 +1104,18 @@ static int is_reasonable_accept_errno (const int error)
  *
  * READABLE_UNIX_FD_DROP_DEAD_TIMEVAL = 2,0 by default.
  *
- * Making it shorter is probably safe, but I'll leave that to you.  Making
- * it 0,0 doesn't work reliably.  The shorter you can reliably make it,
+ * Making it shorter is probably safe, but I'll leave that to you. Making
+ * it 0,0 doesn't work reliably. The shorter you can reliably make it,
  * the faster your application will be able to recover (waiting 2 seconds
  * may _cause_ the problem when there is a very high demand). At any rate,
  * this is better than perma-blocking.
  */
-static int is_af_unix_keeper(const int fd)
+static int is_af_unix_keeper(int fd)
 {
-	struct timeval tval = { READABLE_UNIX_FD_DROP_DEAD_TIMEVAL };
 	fd_set read_fds;
-
 	FD_ZERO(&read_fds);
 	FD_SET(fd, &read_fds);
-
+	struct timeval tval = { READABLE_UNIX_FD_DROP_DEAD_TIMEVAL };
 	return select(fd + 1, &read_fds, NULL, NULL, &tval) >= 0 && FD_ISSET(fd, &read_fds);
 }
 
@@ -1124,7 +1124,7 @@ static int is_af_unix_keeper(const int fd)
  *
  * OS_Accept --
  *
- *	Accepts a new FastCGI connection.  This routine knows whether
+ *	Accepts a new FastCGI connection. This routine knows whether
  *      we're dealing with TCP based sockets or NT Named Pipes for IPC.
  *
  * Results:
@@ -1135,19 +1135,22 @@ static int is_af_unix_keeper(const int fd)
  *
  *----------------------------------------------------------------------
  */
-int OS_Accept(int listen_sock, int fail_on_intr, const char *webServerAddrs)
+int OS_Accept(int listen_sock, int fail_on_intr, const char* webServerAddrs)
 {
 	int socket = -1;
-	union {
+	union
+	{
 		struct sockaddr_un un;
 		struct sockaddr_in in;
 	} sa;
 
-	for (;;) {
+	for (;;)
+	{
 		if (AcquireLock(listen_sock, fail_on_intr))
 			return -1;
 
-		for (;;) {
+		for (;;)
+		{
 			do {
 #ifdef HAVE_SOCKLEN
 				socklen_t len = sizeof(sa);
@@ -1163,28 +1166,32 @@ int OS_Accept(int listen_sock, int fail_on_intr, const char *webServerAddrs)
 					 && ! fail_on_intr 
 					 && ! shutdownPending);
 
-			if (socket < 0) {
-				if (shutdownPending || ! is_reasonable_accept_errno(errno)) {
+			if (socket < 0)
+			{
+				if (shutdownPending || !is_reasonable_accept_errno(errno))
+				{
 					int errnoSave = errno;
 
 					ReleaseLock(listen_sock);
 					
-					if (! shutdownPending) {
+					if (!shutdownPending)
 						errno = errnoSave;
-					}
 
 					return (-1);
 				}
 				errno = 0;
 			}
-			else {  /* socket >= 0 */
-				int set = 1;
-
+			else
+			{
 				if (sa.in.sin_family != AF_INET)
 					break;
 
 #ifdef TCP_NODELAY
-				/* No replies to outgoing data, so disable Nagle */
+				// No replies to outgoing data, so disable Nagle
+				// Nagle's algorithm is a means of improving the efficiency of TCP/IP networks by reducing the number
+				// of packets that need to be sent over the network. It was defined by John Nagle while working for Ford Aerospace.
+				// Nagle's algorithm - Wikipedia https://en.wikipedia.org/wiki/Nagle's_algorithm
+				int set = 1;
 				setsockopt(socket, IPPROTO_TCP, TCP_NODELAY, (char *)&set, sizeof(set));
 #endif
 
@@ -1193,8 +1200,8 @@ int OS_Accept(int listen_sock, int fail_on_intr, const char *webServerAddrs)
 					break;
 
 				close(socket);
-			}  /* socket >= 0 */
-		}  /* for(;;) */
+			}
+		}
 
 		if (ReleaseLock(listen_sock))
 			return (-1);
@@ -1203,9 +1210,9 @@ int OS_Accept(int listen_sock, int fail_on_intr, const char *webServerAddrs)
 			break;
 
 		close(socket);
-	}  /* while(1) - lock */
+	}
 
-	return (socket);
+	return socket;
 }
 
 /*

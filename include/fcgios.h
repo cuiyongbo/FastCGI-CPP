@@ -95,8 +95,8 @@ int OS_LibInit(int stdioFds[3]);
 void OS_LibShutdown(void);
 int OS_CreateLocalIpcFd(const char *bindPath, int backlog);
 int OS_FcgiConnect(char *bindPath);
-int OS_Read(int fd, char * buf, size_t len);
-int OS_Write(int fd, char * buf, size_t len);
+int OS_Read(int fd, char* buf, size_t len);
+int OS_Write(int fd, char* buf, size_t len);
 int OS_SpawnChild(char *execPath, int listenFd);
 int OS_AsyncReadStdin(void *buf, int len, OS_AsyncProc procPtr,
                       ClientData clientData);
@@ -107,7 +107,7 @@ int OS_AsyncWrite(int fd, int offset, void *buf, int len,
 int OS_Close(int fd);
 int OS_CloseRead(int fd);
 int OS_DoIo(struct timeval *tmo);
-int OS_Accept(int listen_sock, int fail_on_intr, const char *webServerAddrs);
+int OS_Accept(int listen_sock, int fail_on_intr, const char* webServerAddrs);
 int OS_IpcClose(int ipcFd);
 int OS_IsFcgi(int sock);
 void OS_SetFlags(int fd, int flags);

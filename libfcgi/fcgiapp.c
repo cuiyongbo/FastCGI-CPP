@@ -1042,7 +1042,7 @@ static ParamsPtr NewParams(int length)
  *
  *----------------------------------------------------------------------
  */
-static void FreeParams(ParamsPtr *paramsPtrPtr)
+static void FreeParams(ParamsPtr* paramsPtrPtr)
 {
 	ParamsPtr paramsPtr = *paramsPtrPtr;
 	if(paramsPtr == NULL)
@@ -1529,37 +1529,34 @@ static int ProcessManagementRecord(int type, FCGX_Stream *stream)
  */
 static int ProcessBeginRecord(int requestId, FCGX_Stream *stream)
 {
-	FCGX_Stream_Data *data = (FCGX_Stream_Data *)stream->data;
 	FCGI_BeginRequestBody body;
-	if(requestId == 0 || data->contentLen != sizeof(body)) {
+	FCGX_Stream_Data* data = (FCGX_Stream_Data*)stream->data;
+	if(requestId == 0 || data->contentLen != sizeof(body))
 		return FCGX_PROTOCOL_ERROR;
-	}
-	if(data->reqDataPtr->isBeginProcessed) {
+
+	if(data->reqDataPtr->isBeginProcessed)
+	{
 		/*
 		 * The Web server is multiplexing the connection.  This library
 		 * doesn't know how to handle multiplexing, so respond with
 		 * FCGI_END_REQUEST{protocolStatus = FCGI_CANT_MPX_CONN}
 		 */
 		FCGI_EndRequestRecord endRequestRecord;
-		endRequestRecord.header = MakeHeader(FCGI_END_REQUEST,
-				requestId, sizeof(endRequestRecord.body), 0);
-		endRequestRecord.body
-				= MakeEndRequestBody(0, FCGI_CANT_MPX_CONN);
-		if (write_it_all(data->reqDataPtr->ipcFd, (char *)&endRequestRecord, sizeof(endRequestRecord)) < 0) {
+		endRequestRecord.header = MakeHeader(FCGI_END_REQUEST, requestId, sizeof(endRequestRecord.body), 0);
+		endRequestRecord.body = MakeEndRequestBody(0, FCGI_CANT_MPX_CONN);
+		if (write_it_all(data->reqDataPtr->ipcFd, (char *)&endRequestRecord, sizeof(endRequestRecord)) < 0)
+		{
 			SetError(stream, OS_Errno);
 			return -1;
 		}
-
 		return SKIP;
 	}
-	/*
-	 * Accept this new request.  Read the record body.
-	 */
+
+	// Accept this new request.  Read the record body.
 	data->reqDataPtr->requestId = requestId;
-	if(FCGX_GetStr((char *) &body, sizeof(body), stream)
-			!= sizeof(body)) {
+	if(FCGX_GetStr((char *) &body, sizeof(body), stream) != sizeof(body))
 		return FCGX_PROTOCOL_ERROR;
-	}
+
 	data->reqDataPtr->keepConnection = (body.flags & FCGI_KEEP_CONN);
 	data->reqDataPtr->role = (body.roleB1 << 8) + body.roleB0;
 	data->reqDataPtr->isBeginProcessed = TRUE;
@@ -1588,9 +1585,9 @@ static int ProcessBeginRecord(int requestId, FCGX_Stream *stream)
  *
  *----------------------------------------------------------------------
  */
-static int ProcessHeader(FCGI_Header header, FCGX_Stream *stream)
+static int ProcessHeader(FCGI_Header header, FCGX_Stream* stream)
 {
-	FCGX_Stream_Data *data = (FCGX_Stream_Data *)stream->data;
+	FCGX_Stream_Data* data = (FCGX_Stream_Data*)stream->data;
 	int requestId;
 	if(header.version != FCGI_VERSION_1) {
 		return FCGX_UNSUPPORTED_VERSION;
@@ -1624,27 +1621,29 @@ static int ProcessHeader(FCGI_Header header, FCGX_Stream *stream)
  *
  *----------------------------------------------------------------------
  */
-static void FillBuffProc(FCGX_Stream *stream)
+static void FillBuffProc(FCGX_Stream* stream)
 {
-	FCGX_Stream_Data *data = (FCGX_Stream_Data *)stream->data;
+	FCGX_Stream_Data* data = (FCGX_Stream_Data*)stream->data;
 	FCGI_Header header;
 	int headerLen = 0;
 	int status, count;
 
-	for (;;) {
+	for (;;)
+	{
 		/*
 		 * If data->buff is empty, do a read.
 		 */
-		if(stream->rdNext == data->buffStop) {
-			count = OS_Read(data->reqDataPtr->ipcFd, (char *)data->buff,
-							data->bufflen);
-			if(count <= 0) {
+		if(stream->rdNext == data->buffStop)
+		{
+			count = OS_Read(data->reqDataPtr->ipcFd, (char *)data->buff, data->bufflen);
+			if(count <= 0)
+			{
 				SetError(stream, (count == 0 ? FCGX_PROTOCOL_ERROR : OS_Errno));
 				return;
 			}
 			stream->rdNext = data->buff;
 			data->buffStop = data->buff + count;
-	}
+		}
 		/*
 		 * Now data->buff is not empty.  If the current record contains
 		 * more content bytes, deliver all that are present in data->buff.
@@ -1754,7 +1753,7 @@ static void FillBuffProc(FCGX_Stream *stream)
  *
  *----------------------------------------------------------------------
  */
-static FCGX_Stream *NewStream(FCGX_Request *reqDataPtr, int bufflen, int isReader, int streamType)
+static FCGX_Stream* NewStream(FCGX_Request* reqDataPtr, int bufflen, int isReader, int streamType)
 {
 	/*
 	 * XXX: It would be a lot cleaner to have a NewStream that only
@@ -1873,7 +1872,7 @@ static FCGX_Stream *SetReaderType(FCGX_Stream *stream, int streamType)
  *
  *----------------------------------------------------------------------
  */
-static FCGX_Stream *NewReader(FCGX_Request *reqDataPtr, int bufflen, int streamType)
+static FCGX_Stream* NewReader(FCGX_Request* reqDataPtr, int bufflen, int streamType)
 {
 	return NewStream(reqDataPtr, bufflen, TRUE, streamType);
 }
@@ -1889,7 +1888,7 @@ static FCGX_Stream *NewReader(FCGX_Request *reqDataPtr, int bufflen, int streamT
  *
  *----------------------------------------------------------------------
  */
-static FCGX_Stream *NewWriter(FCGX_Request *reqDataPtr, int bufflen, int streamType)
+static FCGX_Stream* NewWriter(FCGX_Request* reqDataPtr, int bufflen, int streamType)
 {
 	return NewStream(reqDataPtr, bufflen, FALSE, streamType);
 }
@@ -2025,7 +2024,7 @@ void FCGX_Finish_r(FCGX_Request *reqDataPtr)
 	FCGX_Free(reqDataPtr, close);
 }
 
-void FCGX_Free(FCGX_Request * request, int close)
+void FCGX_Free(FCGX_Request* request, int close)
 {
 	if (request == NULL) 
 		return;
@@ -2135,7 +2134,7 @@ int FCGX_Accept(
 {
 	int rc;
 
-	if (!libInitialized) 
+	if (!libInitialized)
 	{
 		rc = FCGX_Init();
 		if (rc) return rc;
@@ -2195,11 +2194,9 @@ int FCGX_Accept_r(FCGX_Request *reqDataPtr)
 		if (reqDataPtr->ipcFd < 0)
 		{
 			int fail_on_intr = reqDataPtr->flags & FCGI_FAIL_ACCEPT_ON_INTR;
-
 			reqDataPtr->ipcFd = OS_Accept(reqDataPtr->listen_sock, fail_on_intr, webServerAddressList);
-			if (reqDataPtr->ipcFd < 0) {
+			if (reqDataPtr->ipcFd < 0)
 				return (errno > 0) ? (0 - errno) : -9999;
-			}
 		}
 
 		/*
@@ -2209,7 +2206,7 @@ int FCGX_Accept_r(FCGX_Request *reqDataPtr)
 		 */
 		reqDataPtr->isBeginProcessed = FALSE;
 		reqDataPtr->in = NewReader(reqDataPtr, 8192, 0);
-		FillBuffProc(reqDataPtr->in);
+		FillBuffProc(reqDataPtr->in); // may change reqDataPtr->isBeginProcessed in processHeader
 		if(!reqDataPtr->isBeginProcessed) goto TryAgain;
 		
 		{
@@ -2248,7 +2245,6 @@ int FCGX_Accept_r(FCGX_Request *reqDataPtr)
 		 */
 TryAgain:
 		FCGX_Free(reqDataPtr, 1);
-
 	}
 
 	/*
