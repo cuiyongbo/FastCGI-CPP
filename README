@@ -9,18 +9,13 @@ FastCGI Developer's Kit README
 Basic Directions
 ----------------
 
-Unix:
+Since C/C++ is the only language I have confidence in, I trucate the project, with ONLY C/C++ code left. 
 
-    ./configure
-    make
-    make install
+Unix:  make
 
-Win32:
+For convience, you can copy header files to `/usr/local/include`, and the output library to `/usr/local/lib`.
 
-    nmake -f Makefile.nt
-
-    (or use the MSVC++ project files in the Win32 directory)
-
+Win32: use the MSVC++ project files in the `Win32` directory
 
 CHANGES
 -------

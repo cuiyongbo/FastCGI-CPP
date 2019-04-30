@@ -944,7 +944,8 @@ static int ClientAddrOK(struct sockaddr_in* saPtr, const char* clientList)
 	int result = FALSE;
 	char* clientListCopy = str_dup(clientList);
 
-	for (char* next, char* cur = clientListCopy; cur != NULL; cur = next)
+	char* next = NULL;
+	for (char* cur = clientListCopy; cur != NULL; cur = next)
 	{
 		next = strchr(cur, ',');
 		if (next != NULL)

@@ -7,7 +7,7 @@ extern char ** environ;
 #endif
 #include "fcgio.h"
 
-#include "fcgi_config.h"  // HAVE_IOSTREAM_WITHASSIGN_STREAMBUF
+// #include "fcgi_config.h"  // HAVE_IOSTREAM_WITHASSIGN_STREAMBUF
 
 using std::cin;
 using std::cout;
