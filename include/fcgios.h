@@ -82,9 +82,9 @@ extern "C" {
 
 #ifndef _CLIENTDATA
 #   if defined(__STDC__) || defined(__cplusplus)
-    typedef void *ClientData;
+	typedef void *ClientData;
 #   else
-    typedef int *ClientData;
+	typedef int *ClientData;
 #   endif /* __STDC__ */
 #define _CLIENTDATA
 #endif
@@ -93,13 +93,13 @@ typedef void (*OS_AsyncProc) (ClientData clientData, int len);
 
 int OS_LibInit(int stdioFds[3]);
 void OS_LibShutdown(void);
-int OS_CreateLocalIpcFd(const char *bindPath, int backlog);
+int OS_CreateLocalIpcFd(const char* bindPath, int backlog);
 int OS_FcgiConnect(char *bindPath);
 int OS_Read(int fd, char* buf, size_t len);
 int OS_Write(int fd, char* buf, size_t len);
 int OS_SpawnChild(char *execPath, int listenFd);
 int OS_AsyncReadStdin(void *buf, int len, OS_AsyncProc procPtr,
-                      ClientData clientData);
+					  ClientData clientData);
 int OS_AsyncRead(int fd, int offset, void *buf, int len,
 		 OS_AsyncProc procPtr, ClientData clientData);
 int OS_AsyncWrite(int fd, int offset, void *buf, int len,

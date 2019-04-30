@@ -269,12 +269,12 @@ union SockAddrUnion {
  * OS_CreateLocalIpcFd --
  *
  *   This procedure is responsible for creating the listener socket
- *   on Unix for local process communication.  It will create a
+ *   on Unix for local process communication. It will create a
  *   domain socket or a TCP/IP socket bound to "localhost" and return
  *   a file descriptor to it to the caller.
  *
  * Results:
- *      Listener socket created.  This call returns either a valid
+ *      Listener socket created. This call returns either a valid
  *      file descriptor or -1 on error.
  *
  * Side effects:
@@ -282,7 +282,7 @@ union SockAddrUnion {
  *
  *----------------------------------------------------------------------
  */
-int OS_CreateLocalIpcFd(const char *bindPath, int backlog)
+int OS_CreateLocalIpcFd(const char* bindPath, int backlog)
 {
 	int listenSock, servLen;
 	union   SockAddrUnion sa;  

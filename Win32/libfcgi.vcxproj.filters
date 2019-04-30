@@ -49,7 +49,7 @@
     <ClCompile Include="..\libfcgi\os_win32.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\cgi-fcgi\cgi-fcgi.c">
+    <ClCompile Include="..\libfcgi\cgi-fcgi.c">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
