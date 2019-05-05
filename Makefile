@@ -7,7 +7,7 @@ OBJS = cgi-fcgi.o  fcgiapp.o  fcgio.o  fcgi_stdio.o  os_unix.o
 
 CXX = g++
 CPPFLAGS += -I$(HEADER_DIR)
-CXXFLAGS += -pthread
+CXXFLAGS += -pthread -g
 LIB_NAME = libfcgi.a
 
 all : $(LIB_NAME)

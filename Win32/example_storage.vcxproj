@@ -48,8 +48,12 @@
     <ClCompile Include="..\examples\hello_world.cpp" />
     <ClCompile Include="..\examples\log-dump.c" />
     <ClCompile Include="..\examples\prime_counter_demo.cpp" />
+    <ClCompile Include="..\examples\signal_handler_setting.cpp" />
     <ClCompile Include="..\examples\size.c" />
     <ClCompile Include="..\examples\threaded.c" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\examples\signal_handler_setting.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

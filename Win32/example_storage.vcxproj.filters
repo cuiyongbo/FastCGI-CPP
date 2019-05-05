@@ -34,5 +34,13 @@
     <ClCompile Include="..\examples\threaded.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\examples\signal_handler_setting.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\examples\signal_handler_setting.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
